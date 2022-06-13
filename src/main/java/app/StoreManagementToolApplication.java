@@ -8,7 +8,6 @@ public class StoreManagementToolApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StoreManagementToolApplication.class, args);
-		System.out.println("GLO");
 	}
 
 }

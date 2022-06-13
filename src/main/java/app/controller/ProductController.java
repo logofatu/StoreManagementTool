@@ -3,7 +3,6 @@ package app.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import app.ApiError;
+import app.exceptions.ApiError;
+import app.exceptions.CustomException;
 import app.model.Product;
 import app.repository.ProductRepository;
 
@@ -62,26 +62,22 @@ public class ProductController {
 	}
 
 	@PostMapping("/products")
-	public ResponseEntity<Object> createProduct(@RequestBody Product product) {
+	public ResponseEntity<Object> createProduct(@RequestBody Product product) throws CustomException {
 		if (!isPriceValid(product.getPrice())) {
-//			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, "price should be >= 0", "");
-			return new ResponseEntity<>(apiError, null, HttpStatus.BAD_REQUEST);
+			throw new CustomException(HttpStatus.BAD_REQUEST, "Price should be >= 0");
 		}
 		try {
 			Product newProduct = productRepository.save(new Product(product.getCode(), product.getDescription(), product.getPrice()));
 			return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e.getClass().getName());
-			return new ResponseEntity<>(apiError, null, HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, e);
 		}
 	}
 
 	@PutMapping("/products/{id}")
-	public ResponseEntity<Product> updateProduct(@PathVariable("id") long id, @RequestBody Product product) {
+	public ResponseEntity<Product> updateProduct(@PathVariable("id") long id, @RequestBody Product product) throws CustomException {
 		if (product.getPrice() != null && !isPriceValid(product.getPrice())) {
-			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			throw new CustomException(HttpStatus.BAD_REQUEST, "Price should be >= 0");
 		}
 		Optional<Product> productData = productRepository.findById(id);
 		if (productData.isPresent()) {
