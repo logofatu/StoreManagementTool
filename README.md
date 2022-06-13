@@ -16,4 +16,10 @@ DELETE	/api/products/:id	                delete a product by :id
 DELETE	/api/products	                    delete all products
 GET	    /api/products?description=[keyword]	find all products which description contains keyword
 
-I am using the H2 database which is an in-memory database.
+For "update a product by :id" can be send only one property of product for update, for instance only price,
+properties that are null will not be updated.
+
+Technologies used:
+
+- H2 database which is an in-memory database.
+- Log4j for logging

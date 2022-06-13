@@ -19,7 +19,7 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.AUTO)
     @Column(updatable = false, nullable = false)
 	private Long id;
-	@Column
+	@Column(unique=true)
 	private String code;
 	@Column
 	private String description;

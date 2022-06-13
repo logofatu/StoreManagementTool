@@ -3,13 +3,13 @@ package app.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import app.ApiError;
 import app.model.Product;
 import app.repository.ProductRepository;
 
@@ -61,18 +62,27 @@ public class ProductController {
 	}
 
 	@PostMapping("/products")
-	public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+	public ResponseEntity<Object> createProduct(@RequestBody Product product) {
+		if (!isPriceValid(product.getPrice())) {
+//			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, "price should be >= 0", "");
+			return new ResponseEntity<>(apiError, null, HttpStatus.BAD_REQUEST);
+		}
 		try {
 			Product newProduct = productRepository.save(new Product(product.getCode(), product.getDescription(), product.getPrice()));
 			return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e.getClass().getName());
+			return new ResponseEntity<>(apiError, null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@PutMapping("/products/{id}")
 	public ResponseEntity<Product> updateProduct(@PathVariable("id") long id, @RequestBody Product product) {
+		if (product.getPrice() != null && !isPriceValid(product.getPrice())) {
+			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+		}
 		Optional<Product> productData = productRepository.findById(id);
 		if (productData.isPresent()) {
 			Product productToUpdate = productData.get();
@@ -105,6 +115,10 @@ public class ProductController {
 			log.error(e.getMessage(), e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	private boolean isPriceValid(Double price) {
+		return price >= 0;
 	}
 
 }
