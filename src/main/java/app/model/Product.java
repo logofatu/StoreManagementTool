@@ -1,4 +1,4 @@
-package model;
+package app.model;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
