@@ -30,16 +30,16 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<Object> handleException(CustomException ex) {
-	    String error = ex.getPreviousException() != null ? ex.getPreviousException().getClass().getName() : ex.getClass().getName();
+    	var error = ex.getPreviousException() != null ? ex.getPreviousException().getClass().getName() : ex.getClass().getName();
 	    log.error(error, ex);
-		ApiError apiError = new ApiError(ex.getHttpStatus(), ex.getMessage(), error);
+	    var apiError = new ApiError(ex.getHttpStatus(), ex.getMessage(), error);
 	    return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 	  
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 		log.error(ex.getMessage(), ex);
-		List<String> errors = new ArrayList<String>();
+		List<String> errors = new ArrayList<>();
 	    for (FieldError error : ex.getBindingResult().getFieldErrors()) {
 	        errors.add(error.getField() + ": " + error.getDefaultMessage());
 	    }
@@ -47,66 +47,66 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 	        errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
 	    }
 	    
-	    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
+	    var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
 	    return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
 	}
 	
 	@Override
 	protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-	    String error = ex.getParameterName() + " parameter is missing";
+		var error = ex.getParameterName() + " parameter is missing";
 	    
 	    log.error(error, ex);
-	    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+	    var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
 	    return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 	
 	@ExceptionHandler({ MethodArgumentTypeMismatchException.class })
 	public ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, WebRequest request) {
-	    String error = ex.getName() + " should be of type " + ex.getRequiredType().getName();
+		var error = ex.getName() + " should be of type " + ex.getRequiredType().getName();
 
 	    log.error(error, ex);
-	    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
+	    var apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), error);
 	    return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 	
 	@Override
 	protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-	    String error = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
+		var error = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
 
 	    log.error(error, ex);
-	    ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), error);
+	    var apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), error);
 	    return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 	
 	@Override
 	protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-	    StringBuilder builder = new StringBuilder();
+		var builder = new StringBuilder();
 	    builder.append(ex.getMethod());
 	    builder.append(" method is not supported for this request. Supported methods are ");
 	    ex.getSupportedHttpMethods().forEach(t -> builder.append(t + " "));
 
 	    log.error(builder.toString(), ex);
-	    ApiError apiError = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, ex.getLocalizedMessage(), builder.toString());
+	    var apiError = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, ex.getLocalizedMessage(), builder.toString());
 	    return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 	
 	@Override
 	protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-	    StringBuilder builder = new StringBuilder();
+		var builder = new StringBuilder();
 	    builder.append(ex.getContentType());
 	    builder.append(" media type is not supported. Supported media types are ");
 	    ex.getSupportedMediaTypes().forEach(t -> builder.append(t + ", "));
 
 	    log.error(builder.toString(), ex);
-	    ApiError apiError = new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ex.getLocalizedMessage(), builder.substring(0, builder.length() - 2));
+	    var apiError = new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ex.getLocalizedMessage(), builder.substring(0, builder.length() - 2));
 	    return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 	
 	@ExceptionHandler({ Exception.class })
 	public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
-	    String error = "error occurred";
+		var error = "error occurred";
 		log.error(error, ex);
-		ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage(), error);
+		var apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage(), error);
 	    return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 }

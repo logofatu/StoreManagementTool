@@ -35,7 +35,7 @@ public class ProductController {
 	@GetMapping("/products")
 	public ResponseEntity<List<Product>> getAllProducts(@RequestParam(required = false) String description) {
 		try {
-			List<Product> products = new ArrayList<Product>();
+			List<Product> products = new ArrayList<>();
 			if (description == null) {
 				productRepository.findAll().forEach(products::add);
 			} else {
@@ -67,7 +67,7 @@ public class ProductController {
 			throw new CustomException(HttpStatus.BAD_REQUEST, "Price should be >= 0");
 		}
 		try {
-			Product newProduct = productRepository.save(new Product(product.getCode(), product.getDescription(), product.getPrice()));
+			var newProduct = productRepository.save(new Product(product.getCode(), product.getDescription(), product.getPrice()));
 			return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
 		} catch (Exception e) {
 			throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, e);
